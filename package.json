@@ -1,0 +1,22 @@
+{
+  "name": "bc2025-6",
+  "version": "1.0.0",
+  "description": "Inventory management service",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bodi4ka07/bc2025-6.git"
+  },
+  "keywords": ["inventory", "api", "express"],
+  "author": "Bohdan bc2025-6",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bodi4ka07/bc2025-6/issues"
+  },
+  "homepage": "https://github.com/bodi4ka07/bc2025-6#readme"
+}
