@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реєстрація пристрою</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        input[type="file"] {
+            margin-top: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Реєстрація нового пристрою</h1>
+    
+    <form id="registerForm" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="inventory_name">Ім'я пристрою (обов'язково):</label>
+            <input type="text" id="inventory_name" name="inventory_name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Опис:</label>
+            <textarea id="description" name="description" rows="4"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="photo">Фото:</label>
+            <input type="file" id="photo" name="photo" accept="image/*">
+        </div>
+
+        <button type="submit">Зареєструвати</button>
+    </form>
+
+    <div id="result" class="result"></div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('inventory_name', document.getElementById('inventory_name').value);
+            formData.append('description', document.getElementById('description').value);
+            
+            const photoFile = document.getElementById('photo').files[0];
+            if (photoFile) {
+                formData.append('photo', photoFile);
+            }
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                const resultDiv = document.getElementById('result');
+                
+                if (response.ok) {
+                    resultDiv.style.display = 'block';
+                    resultDiv.style.backgroundColor = '#d4edda';
+                    resultDiv.innerHTML = `
+                        <h3>Успішно зареєстровано!</h3>
+                        <p><strong>ID:</strong> ${data.item.id}</p>
+                        <p><strong>Ім'я:</strong> ${data.item.inventory_name}</p>
+                        <p><strong>Опис:</strong> ${data.item.description}</p>
+                    `;
+                    document.getElementById('registerForm').reset();
+                } else {
+                    resultDiv.style.display = 'block';
+                    resultDiv.style.backgroundColor = '#f8d7da';
+                    resultDiv.innerHTML = `<p><strong>Помилка:</strong> ${data.error}</p>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Помилка з\'єднання з сервером');
+            }
+        });
+    </script>
+</body>
+</html>

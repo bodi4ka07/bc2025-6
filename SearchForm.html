@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пошук пристрою</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        input[type="checkbox"] {
+            margin-right: 5px;
+        }
+        button {
+            background-color: #2196F3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0b7dda;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            display: none;
+        }
+        .result img {
+            max-width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Пошук пристрою</h1>
+    
+    <form id="searchForm">
+        <div class="form-group">
+            <label for="id">Серійний номер (ID):</label>
+            <input type="text" id="id" name="id" required>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" id="has_photo" name="has_photo" value="true">
+                Додати посилання на фото до опису
+            </label>
+        </div>
+
+        <button type="submit">Знайти</button>
+    </form>
+
+    <div id="result" class="result"></div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new URLSearchParams();
+            formData.append('id', document.getElementById('id').value);
+            formData.append('has_photo', document.getElementById('has_photo').checked ? 'true' : 'false');
+
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData
+                });
+
+                const resultDiv = document.getElementById('result');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.style.display = 'block';
+                    resultDiv.style.backgroundColor = '#d4edda';
+                    
+                    let html = `
+                        <h3>Знайдено пристрій:</h3>
+                        <p><strong>ID:</strong> ${data.id}</p>
+                        <p><strong>Ім'я:</strong> ${data.inventory_name}</p>
+                        <p><strong>Опис:</strong> ${data.description}</p>
+                    `;
+                    
+                    if (data.photo_url) {
+                        html += `<img src="${data.photo_url}" alt="Photo">`;
+                    }
+                    
+                    resultDiv.innerHTML = html;
+                } else {
+                    const data = await response.json();
+                    resultDiv.style.display = 'block';
+                    resultDiv.style.backgroundColor = '#f8d7da';
+                    resultDiv.innerHTML = `<p><strong>Помилка:</strong> ${data.error}</p>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Помилка з\'єднання з сервером');
+            }
+        });
+    </script>
+</body>
+</html>

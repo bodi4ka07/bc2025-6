@@ -207,3 +207,49 @@ app.delete('/inventory/:id', (req, res) => {
     id: id
   });
 });
+
+// GET /RegisterForm.html - Веб форма реєстрації
+app.get('/RegisterForm.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'RegisterForm.html'));
+});
+
+// GET /SearchForm.html - Веб форма пошуку
+app.get('/SearchForm.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'SearchForm.html'));
+});
+
+// POST /search - Пошук пристрою за ID
+app.post('/search', (req, res) => {
+  const id = parseInt(req.body.id);
+  const hasPhoto = req.body.has_photo === 'true';
+
+  const item = inventory.find(i => i.id === id);
+
+  if (!item) {
+    return res.status(404).json({ error: 'Item not found' });
+  }
+
+  let description = item.description;
+  
+  // Додати посилання на фото до опису, якщо потрібно
+  if (hasPhoto && item.photo) {
+    const photoUrl = `http://${options.host}:${options.port}/inventory/${item.id}/photo`;
+    description += ` [Фото: ${photoUrl}]`;
+  }
+
+  const result = {
+    id: item.id,
+    inventory_name: item.inventory_name,
+    description: description,
+    photo_url: item.photo 
+      ? `http://${options.host}:${options.port}/inventory/${item.id}/photo` 
+      : null
+  };
+
+  res.status(200).json(result);
+});
+
+// Запуск сервера
+app.listen(options.port, options.host, () => {
+  console.log(`Server running at http://${options.host}:${options.port}/`);
+});
