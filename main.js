@@ -144,7 +144,7 @@ app.get('/inventory/:id/photo', (req, res) => {
     return res.status(404).json({ error: 'Photo not found' });
   }
 
-  const photoPath = path.join(options.cache, item.photo);
+  const photoPath = path.join(__dirname, options.cache, item.photo);
 
   if (!fs.existsSync(photoPath)) {
     return res.status(404).json({ error: 'Photo file not found' });
